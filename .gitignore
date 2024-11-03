@@ -1,5 +1,8 @@
-# Prerequisites
-*.d
+## Ignore all
+*
+
+# Unignore all with extensions
+!*.*
 
 # Object files
 *.o
