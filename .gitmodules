@@ -1,0 +1,3 @@
+[submodule "avrd"]
+	path = avrd
+	url = https://github.com/WebFreak001/avrd.git
