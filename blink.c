@@ -14,7 +14,7 @@
 #define DDRB *((volatile unsigned char *)0x24)
 
 #include <stdint.h>
-#define PERIOD (1000000)
+#define PERIOD (200000)
 
 int main() {
     uint8_t leds;
