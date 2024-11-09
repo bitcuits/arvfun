@@ -44,7 +44,7 @@ extern(C) void main()
     USART_init(UBRR);
     ulong count;
     while(1) {
-        print_serial(&"HE\n"[0]);
+        print_serial(&"Hej-D\n"[0]);
         for(count=0; count < PERIOD; count++) {
             PORTB = 0;
         }

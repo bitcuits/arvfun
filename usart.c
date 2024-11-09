@@ -43,7 +43,7 @@ int main()
     USART_init(UBRR);
     uint32_t count;
     while(1) {
-        print_serial("HE\n");
+        print_serial("Hej-C\n");
         for(count=0; count < PERIOD; count++) {
             PORTB = 0;
         }
