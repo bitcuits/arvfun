@@ -1,9 +1,9 @@
 
 MAIN=blink
 #MAIN=hello_wold
-MAIN=usart
+#MAIN=usart
 #MAIN?=fast_pwm
-
+MAIN=usart_print
 include platform.atmega328p.mk
 
 BAUD_RATE=115200
