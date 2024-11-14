@@ -1,18 +1,16 @@
 
-MAIN=blink
+CLANG=1
+MAIN?=blink
 #MAIN=hello_wold
 #MAIN=usart
 #MAIN?=fast_pwm
-MAIN=usart_print
+#MAIN=usart_print
 include platform.atmega328p.mk
 
 BAUD_RATE=115200
 UPLOAD_PORT=/dev/ttyUSB0
 #UPLOAD_PORT=/dev/ttyACM0
 
-
-DINC+=avrd/source
-DINC+=avrd/src-devices
 
 DFLAGS+=-betterC
 DFLAGS+=-Oz
@@ -24,10 +22,15 @@ all: upload
 
 
 ifdef CLANG
+DINC+=/usr/lib/avr/include
+
 $(MAIN).o: $(MAIN).c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=$(AVR_ARCH) -c -o $(MAIN).o $(MAIN).c
+	avr-gcc -Os -DF_CPU=16000000UL $(addprefix -I, $(DINC)) -mmcu=$(AVR_ARCH) -c -o $(MAIN).o $(MAIN).c
 
 else
+DINC+=avrd/source
+DINC+=avrd/src-devices
+
 $(MAIN).o: $(MAIN).d
 	ldc2 $(DFLAGS) $(addprefix -I,$(DINC)) --d-version=$(AVR_VERSION) -mtriple=avr -mcpu=$(AVR_ARCH) -Xcc=-mmcu=$(AVR_ARCH) -gcc=avr-gcc $(MAIN).d
 
