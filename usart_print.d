@@ -5,39 +5,8 @@ enum FOSC=16_000_000UL;
 enum BAUD=9600;
 enum UBRR=ubyte(FOSC/16/BAUD-1);
 enum PERIOD=1000000UL;
+import avr.util.delay;
 
-void USART_init(uint ubrr)
-{
-    // Setting Baud rate
-    UBRR0H = cast(ubyte)(ubrr >> 8);
-    UBRR0L = cast(ubyte)ubrr;
-
-    //Enable receiver and transmitter
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0);
-
-    //Set frame format: 8data, 2stop bits
-    UCSR0C = (1 << USBS0) | (1 << UCSZ00) | (1 << UCSZ01);
-
-    return;
-}
-
-void USART_Transmit(const char data)
-{
-    //while(!(UCSR0A & (1  << UDRE0))) {};
-
-    UDR0 = data;
-
-    return;
-}
-
-void print_serial(const(char)* data)
-{ 
-    for(;*data != '\0';data++) {
-        USART_Transmit(*data);
-    }
-    
-    return;
-}
 @safe
 struct USART {
     static void baud(const uint baudrate) {
@@ -68,15 +37,66 @@ struct USART {
     }
 }
 
+
+struct Formater(ushort size) {
+    import std.traits;
+    enum symbols="0123456789abcdef";
+    char[size] buffer;
+    ushort put(T)(T x, ushort index=0, const ubyte base=10) if(isIntegral!T) {
+        auto buf=buffer.ptr;
+        const sym=symbols.ptr;
+        ushort convert(ushort i) {
+            if (index < size) {
+                const cifra=sym[x % base];
+                x/=base;
+                if (x == 0) {
+                    return i+1;
+                }
+                buf[i]=cifra;
+                return convert(i+ushort(1));
+            }
+            return i;
+        }
+        return convert(index);
+    }
+
+    const(char[]) get(const ushort len) const {
+        Array!char result;
+        if (len < size) {
+            result.ptr=cast(char*)buffer.ptr;
+            result.len = len;
+            return result.array;
+        }
+        return "Buffer overflow-";
+    }
+    
+}
+
+alias Delay = FrequencyDelay!(1 * MHz);
+
+union Array(T) {
+    struct {
+        T* ptr;
+        ushort len;
+    }
+    T[] array;
+}
 extern(C) void main()
 {
     USART.baud=9600;
-    //usart.baud = 9600;
-    ulong count;
+    Formater!(20) format;
+
+    ushort count;
     while(1) {
-       USART.println("Hello D");
-        for(count=0; count < PERIOD; count++) {
-            PORTB = 0;
+       USART.print("Hello D ");
+       const index=format.put(count);
+        
+        for(ushort i=0; i<index; i++) {
+            USART.put(format.buffer.ptr[i]);
         }
-    }
+        USART.println("");
+        //        USART.println(format.get(index));
+       Delay.delayMsecs!(1000);
+    count++;
+   }
 }
